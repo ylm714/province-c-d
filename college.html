@@ -1,0 +1,317 @@
+﻿<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>选择大学</title>
+  <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+  <script src="college.js" type="text/javascript"></script>
+ </head>
+
+ <body>
+	<h3>选择大学及专业:<input type="text" name="school" id="school-name" placeholder="请选择大学及专业" onclick="pop()"></h3>
+	<div id="choose-box-wrapper">
+	  <div id="choose-box">
+		<div id="choose-box-title">
+			<span>选择学校及专业</span>
+		</div>
+		<div id="choose-a-province">
+		</div>
+		<div id="choose-a-school">
+		</div>
+		<div id="choose-a-department">
+		</div>
+		<div id="choose-box-bottom">
+			<input type="botton" onclick="hide()" value="关闭" />
+		</div>
+	  </div>
+	</div>
+  
+  <script type="text/javascript">
+	if(!document.getElementsByClassName){  
+        document.getElementsByClassName = function(className, element){  
+            var children = (element || document).getElementsByTagName('*');  
+            var elements = new Array();  
+            for (var i=0; i<children.length; i++){  
+                var child = children[i];  
+                var classNames = child.className.split(' ');  
+                for (var j=0; j<classNames.length; j++){  
+                    if (classNames[j] == className){   
+                        elements.push(child);  
+                        break;  
+                    }  
+                }  
+            }   
+            return elements;  
+        };  
+    }
+
+	//弹出窗口
+	function pop(){
+		//将窗口居中
+		makeCenter();
+
+		//初始化省份列表
+		initProvince();
+
+		//默认情况下, 给第一个省份 第一个学校添加choosen样式
+		var aTags = document.getElementsByTagName('a');
+		for(i=0;i<aTags.length;i++){
+			if(aTags[i].getAttribute('province-id')=='1'){
+				aTags[i].setAttribute('class', aTags[i].getAttribute('class')+' choosen');
+				break;
+			}
+		}
+
+		//初始化大学列表
+		initSchool(1);
+			for(i=0;i<aTags.length;i++){
+				if(aTags[i].getAttribute('school-id')=='1001'){
+						aTags[i].setAttribute('class', aTags[i].getAttribute('class')+' choosen');
+						break;
+					}
+			}
+		initDepartment(1,1001);
+	}
+	//隐藏窗口
+	function hide()
+	{
+		document.getElementById('choose-box-wrapper').style.display='none';
+	}
+
+	function initProvince()
+	{
+		//原先的省份列表清空
+		document.getElementById('choose-a-province').innerHTML='';
+		for(i=0;i<schoolList.length;i++)
+		{
+			var ele = document.getElementById('choose-a-province')
+			var newHtml = '<a class="province-item" province-id="'+schoolList[i].id+'">'+schoolList[i].name+'</a>';
+			ele.innerHTML+=newHtml;
+		}
+
+		//添加省份列表项的click事件
+		var items = document.getElementsByClassName('province-item');
+		for(i=0;i<items.length;i++){
+			items[i].onclick=function(){
+				var province = this.getAttribute('province-id');
+				var nodes = this.parentNode.childNodes;
+				for(j=0;j<nodes.length;j++){
+					nodes[j].setAttribute('class', 'province-item');
+				}
+				this.setAttribute('class', 'province-item choosen');
+				initSchool(province);
+			}
+		}
+	}
+
+	function initSchool(provinceID)
+	{
+		//原先的学校列表清空
+		var ele = document.getElementById('choose-a-school');
+		ele.innerHTML='';
+		var schools = schoolList[provinceID-1].school;
+		for(i=0;i<schools.length;i++)
+		{
+			var newHtml = '<a class="school-item" school-id="'+schools[i].id+'">'+schools[i].name+'</a>';
+			ele.innerHTML+=newHtml;
+		}
+
+		//添加学校列表项的click事件
+		var items = document.getElementsByClassName('school-item');
+		for(i=0;i<items.length;i++){
+			items[i].onclick=function(){
+				var school = this.getAttribute('school-id');
+				var nodes = this.parentNode.childNodes;
+				for(j=0;j<nodes.length;j++){
+					nodes[j].setAttribute('class', 'school-item');
+				}
+				this.setAttribute('class', 'school-item choosen');
+				//document.getElementById('school-name').value=this.innerText;
+				initDepartment(provinceID,school);
+			}
+		}
+
+		/*//添加大学列表项的click事件
+		var items = document.getElementsByClassName('school-item');
+		for(i=0;i<items.length;i++){
+			items[i].onclick = function(){
+				var school = this.getAttribute('school-id');
+				document.getElementById('school-name').value=this.innerText;
+				//关闭弹窗
+				hide();
+			}
+		}*/
+	}
+
+	function initDepartment(provinceID,schoolID){
+		//原先的学院列表清空
+		var ele=document.getElementById('choose-a-department');
+		ele.innerHTML='';
+		var schools=schoolList[provinceID-1].school;
+		var departments=schools[schoolID-provinceID*1000-1].subject;
+		for(i=0;i<departments.length;i++)
+		{
+			var newHtml = '<a class="department-item" department-id="'+departments[i].id+'">'+departments[i].name+'</a>';
+			ele.innerHTML+=newHtml;
+		}
+
+		//添加学院列表项的click事件
+		var items = document.getElementsByClassName('department-item');
+				for(i=0;i<items.length;i++){
+					items[i].onclick = function(){
+						var department = this.getAttribute('department-id');
+						var school=document.getElementsByClassName('school-item choosen');
+						document.getElementById('school-name').value=school[0].innerText;
+						document.getElementById('school-name').value+="-";
+						document.getElementById('school-name').value+=this.innerText;
+						//关闭弹窗
+						hide();
+					}
+				}
+
+	}
+
+	function makeCenter()
+	{
+		var ele = document.getElementById('choose-box-wrapper');
+		ele.style.display='block';
+	}
+
+  </script>
+	
+  <style type="text/css">
+	#choose-box-wrapper{
+		width: 652px;
+		height: 570px;
+		position:absolute;
+		top:30%;left:40%;
+		margin-left:-336px;
+		margin-top:-191px;
+		background:url(school_bg.gif) ;
+		padding:10px;
+		border-radius:5px;
+		display:none;
+	}
+	#choose-box{
+		filter: alpha(opacity=100);
+		border: 1px solid #005EAC;
+		width:650px;
+		background-color:white;
+	}
+	#choose-box-title{
+		background:#3777BC;
+		color: white;
+		padding: 4px 10px 5px;
+		font-size: 14px;
+		font-weight: 700;
+		margin: 0;
+	}
+	#choose-box-title span{
+		font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+	}
+
+	#choose-a-province, #choose-a-school,#choose-a-department{
+		margin:5px 8px 10px 8px;
+		border: 1px solid #C3C3C3;
+	}
+	#choose-a-province a{
+		display:inline-block;
+		height: 18px;
+		line-height: 18px;
+		color:#005EAC;
+		text-decoration: none;
+		font-size: 9pt;
+		font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+		margin:2px 5px;
+		padding: 1px;
+		text-align: center;
+	}
+	#choose-a-province a:hover{
+		text-decoration:underline;
+		cursor:pointer;
+	}
+	#choose-a-province .choosen{
+		background-color: #005EAC;
+		color:white;
+	}
+	
+	#choose-a-school{
+		overflow-x: hidden;
+		overflow-y: auto;
+		height: 200px;
+	}
+	#choose-a-school a{
+		height: 18px;
+		line-height: 18px;
+		color:#005EAC;
+		text-decoration: none;
+		font-size: 9pt;
+		font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+		float: left;
+		width: 170px;
+		margin: 4px 12px;
+		padding-left:10px;
+		background:url(school_bg.gif) no-repeat 0 9px;
+	}
+	#choose-a-school a:hover{
+		background-color:#005EAC;
+		color:white;
+		cursor:pointer;
+	}
+	#choose-a-school .choosen{
+		background-color: #005EAC;
+		color:white;
+	}
+	
+	#choose-a-department{
+		overflow-x: hidden;
+		overflow-y: auto;
+		height: 200px;
+	}
+	#choose-a-department a{
+		height: 18px;
+		line-height: 18px;
+		color:#005EAC;
+		text-decoration: none;
+		font-size: 9pt;
+		font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+		float: left;
+		width: 170px;
+		margin: 4px 12px;
+		padding-left:10px;
+		background:url(school_bg.gif) no-repeat 0 9px;
+	}
+	#choose-a-department a:hover{
+		background-color:#005EAC;
+		color:white;
+		cursor:pointer;
+	}
+
+
+
+	#choose-box-bottom{
+		background: #F0F5F8;
+		padding: 8px;
+		text-align: right;
+		border-top: 1px solid #CCC;
+		height:40px;
+	}
+	#choose-box-bottom input{
+		vertical-align: middle;
+		text-align: center;
+		background-color:#005EAC;
+		color:white;
+		border-top: 1px solid #B8D4E8;
+		border-left: 1px solid #B8D4E8;
+		border-right: 1px solid #114680;
+		border-bottom: 1px solid #114680;
+		cursor: pointer;
+		width: 60px;
+		height: 25px;
+		margin-top: 6px;
+		margin-right: 6px;
+		line-height:25px;
+	}
+  </style>
+
+ </body>
+</html>
